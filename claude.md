@@ -1,7 +1,7 @@
 ### **Project Constitution & Execution Blueprint**
 
 **Version: 1.0**
-**Project: AI Trading Demo - NiceGUI + Streamlit Hybrid Architecture**
+**Project: Algorithmic Trading Demo - NiceGUI + Streamlit Hybrid Architecture**
 
 ---
 
@@ -321,7 +321,7 @@ ai-trading-demo/
   @pytest.fixture
   def sample_dataframe() -> pd.DataFrame:
       """A reusable fixture providing a simple OHLCV DataFrame."""
-      data = {'Open': [100], 'High': [105], 'Low': [99], 'Close': [102], 'Volume': [1000]}
+      data = {'Open':, 'High':, 'Low':, 'Close':, 'Volume':}
       return pd.DataFrame(data)
   ```
 - **Using the Fixture (in a `test_*.py` file):**
@@ -343,7 +343,7 @@ def test_calculate_sma_with_valid_data():
     # 1. Arrange: Set up the test conditions. Create mock data and instantiate objects.
     # This section should be clearly separated by a comment or a blank line.
     data = {
-        'Close': [100, 102, 104, 106, 108]
+        'Close':
     }
     df = pd.DataFrame(data)
     window_size = 3
@@ -355,10 +355,10 @@ def test_calculate_sma_with_valid_data():
     # 3. Assert: Verify that the outcome is as expected.
     # Use multiple, specific assertions to check the result.
     assert 'SMA_3' in result_df.columns
-    assert pd.isna(result_df['SMA_3'].iloc[0]) # Check NaN handling
-    assert pd.isna(result_df['SMA_3'].iloc[1])
-    assert result_df['SMA_3'].iloc[2] == 102.0 # (100+102+104)/3
-    assert result_df['SMA_3'].iloc[4] == 106.0 # (104+106+108)/3
+    assert pd.isna(result_df['SMA_3'].iloc) # Check NaN handling
+    assert pd.isna(result_df['SMA_3'].iloc)
+    assert result_df['SMA_3'].iloc == 102.0 # (100+102+104)/3
+    assert result_df['SMA_3'].iloc == 106.0 # (104+106+108)/3
 ```
 
 **11.5. Granular Testing Mandates: What to Test and How**
