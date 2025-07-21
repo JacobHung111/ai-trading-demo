@@ -42,6 +42,9 @@ class TradingDashboard:
         
         # User configurable settings
         self.data_period_days = 150  # Default data period
+        self.update_interval = 10.0  # Default update interval in seconds
+        self.cache_duration = config.realtime_cache_duration  # Cache duration in seconds
+        self.enable_notifications = True  # Enable/disable notifications
 
         # UI components references
         self.price_card = None
@@ -166,8 +169,8 @@ class TradingDashboard:
 
             # Start the monitoring timer
             self.update_timer = ui.timer(
-                10.0, self.update_live_data_sync
-            )  # Update every 10 seconds
+                self.update_interval, self.update_live_data_sync
+            )  # Use configurable update interval
             ui.notify(f"Started monitoring {ticker}", type="positive")
 
         else:
@@ -210,11 +213,12 @@ class TradingDashboard:
                 # Use main container context for UI updates
                 with self.main_container:
                     self.update_price_display(price_info)
-                    ui.notify(
-                        f'Updated {self.current_ticker} price: ${price_info["price"]:.2f}',
-                        type="info",
-                        timeout=3000,
-                    )
+                    if self.enable_notifications:
+                        ui.notify(
+                            f'Updated {self.current_ticker} price: ${price_info["price"]:.2f}',
+                            type="info",
+                            timeout=3000,
+                        )
 
                     # Update historical data with latest price and recalculate signals
                     if self.current_data is not None and not self.current_data.empty:
@@ -528,32 +532,33 @@ class TradingDashboard:
                     
                     ui.label("📌 SMA crossover strategy: Buy when short crosses above long").classes("text-sm text-gray-500 pl-2")
                 
-                # Real-time Settings (Future)
+                # Real-time Settings
                 ui.separator()
                 with ui.column().classes("gap-3"):
-                    ui.label("🔄 Real-time Settings").classes("text-lg font-semibold text-gray-400")
+                    ui.label("🔄 Real-time Settings").classes("text-lg font-semibold text-purple-600")
                     
                     with ui.row().classes("gap-4 w-full"):
-                        ui.input(
+                        update_interval_input = ui.input(
                             "Update Interval (sec)", 
-                            value="10",
+                            value=str(self.update_interval),
                             validation={"Must be 5-60": lambda value: 5 <= int(value or 0) <= 60}
-                        ).props("type=number min=5 max=60 disable").classes("flex-1 opacity-40")
+                        ).props("type=number min=5 max=60").classes("flex-1")
                         
-                        ui.input(
+                        cache_duration_input = ui.input(
                             "Cache Duration (sec)",
-                            value=str(self.config.realtime_cache_duration),
+                            value=str(self.cache_duration),
                             validation={"Must be 30-300": lambda value: 30 <= int(value or 0) <= 300}
-                        ).props("type=number min=30 max=300 disable").classes("flex-1 opacity-40")
+                        ).props("type=number min=30 max=300").classes("flex-1")
                     
-                    ui.switch("Enable Notifications", value=True).props("disable").classes("opacity-40")
+                    notifications_switch = ui.switch("Enable Notifications", value=self.enable_notifications)
                     
-                    ui.label("ℹ️ Real-time settings will be available in future updates").classes("text-sm text-gray-400 pl-2")
+                    ui.label("⚡ Controls how often prices update and notification behavior").classes("text-sm text-gray-500 pl-2")
 
                 def save_settings():
                     try:
                         settings_changed = False
                         strategy_changed = False
+                        realtime_changed = False
                         
                         # Update data period
                         new_period = int(data_period_input.value)
@@ -569,10 +574,43 @@ class TradingDashboard:
                             self.strategy = TradingStrategy(short_window=new_short, long_window=new_long)
                             strategy_changed = True
                             
-                        if settings_changed or strategy_changed:
-                            ui.notify("✅ Settings saved! Please reload historical data to apply changes.", type="positive")
-                            # Clear current data to force reload
-                            self.current_data = None
+                        # Update real-time settings
+                        new_interval = float(update_interval_input.value)
+                        new_cache = int(cache_duration_input.value)
+                        new_notifications = notifications_switch.value
+                        
+                        if (5 <= new_interval <= 60 and new_interval != self.update_interval):
+                            self.update_interval = new_interval
+                            realtime_changed = True
+                            
+                        if (30 <= new_cache <= 300 and new_cache != self.cache_duration):
+                            self.cache_duration = new_cache
+                            # Update data manager cache duration
+                            self.data_manager = DataManager(cache_duration=new_cache)
+                            realtime_changed = True
+                            
+                        if new_notifications != self.enable_notifications:
+                            self.enable_notifications = new_notifications
+                            realtime_changed = True
+                            
+                        # Restart monitoring with new interval if currently monitoring
+                        if realtime_changed and self.is_monitoring:
+                            # Stop current timer
+                            if self.update_timer:
+                                self.update_timer.cancel()
+                            # Start new timer with updated interval
+                            self.update_timer = ui.timer(self.update_interval, self.update_live_data_sync)
+                            
+                        if settings_changed or strategy_changed or realtime_changed:
+                            changes = []
+                            if settings_changed: changes.append("data settings")
+                            if strategy_changed: changes.append("strategy settings")
+                            if realtime_changed: changes.append("real-time settings")
+                            ui.notify(f"✅ Settings saved! Updated: {', '.join(changes)}", type="positive")
+                            
+                            # Clear current data to force reload only if strategy changed
+                            if strategy_changed:
+                                self.current_data = None
                         else:
                             ui.notify("ℹ️ No changes to save.", type="info")
                             
