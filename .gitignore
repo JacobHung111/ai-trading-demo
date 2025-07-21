@@ -1,4 +1,5 @@
-# AI Trading Demo - Git Ignore Configuration
+# AI Trading Demo .gitignore
+# Based on Python, Streamlit, NiceGUI, and Trading Application patterns
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -32,6 +33,10 @@ MANIFEST
 *.manifest
 *.spec
 
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
@@ -47,7 +52,34 @@ coverage.xml
 .pytest_cache/
 cover/
 
-# Virtual environments
+# Translations
+*.mo
+*.pot
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# poetry
+poetry.lock
+
+# Environments
 .env
 .venv
 env/
@@ -56,84 +88,73 @@ ENV/
 env.bak/
 venv.bak/
 
-# IDE specific files
-.vscode/
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# PyCharm
 .idea/
-.claude/
-*.swp
-*.swo
-*~
 
-# OS specific files
+# VSCode
+.vscode/
+*.code-workspace
+
+# macOS
 .DS_Store
-.DS_Store?
+.AppleDouble
+.LSOverride
+Icon
 ._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
+
+# Windows
 Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
 
-# Streamlit specific
-.streamlit/
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# Logs
-*.log
+# Trading Application Specific
+*.cache
+cache/
+financial_data/
 logs/
-
-# Database files
+*.log
+config_local.py
+local_settings.py
+.env.local
+.env.production
 *.db
 *.sqlite
 *.sqlite3
-
-# Temporary files
-*.tmp
-*.temp
-
-# Cache directories
-.cache/
-cache/
-
-# Playwright browsers and artifacts
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
-
-# Application specific
-config.local.py
+temp/
+tmp/
+*.bak
 *.backup
-.env.local
-.env.production
-
-# Financial data files
-*.csv
-*.xlsx
-*.xls
+api_keys.py
+secrets.py
+.secrets
+credentials.json
+*.key
+*.pem
+.streamlit/secrets.toml
+.streamlit/config.toml
+nicegui.db
+plots/
+charts/
+analysis_results/
 data/
 datasets/
-
-# NiceGUI specific
-nicegui.log
-
-# Model and data science files
+historical_data/
+models/
 *.pkl
 *.pickle
-*.joblib
-models/
-checkpoints/
-
-# Coverage reports
-htmlcov/
-.coverage
-coverage.xml
-
-# Local development files
-scratch/
-sandbox/
-dev/
+*.prof
+*.pstats

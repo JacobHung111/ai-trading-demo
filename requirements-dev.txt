@@ -1,0 +1,37 @@
+# AI Trading Demo Development Dependencies
+# Based on claude.md Chapter 4 & 11: Testing & Quality Assurance
+
+# Testing Framework
+pytest>=7.4.0                 # Primary testing framework with powerful features
+pytest-mock>=3.11.0           # Simple fixture-based interface for unittest.mock
+pytest-cov>=4.1.0             # Code coverage measurement tool
+pytest-asyncio>=0.21.0        # Support for testing asyncio code
+
+# Code Formatting & Linting
+black>=23.7.0                 # Uncompromising code formatter
+isort>=5.12.0                 # Import statement organizer
+flake8>=6.0.0                 # Python linting tool for style guide enforcement
+mypy>=1.5.0                   # Static type checker
+
+# Additional Development Tools
+pre-commit>=3.3.0             # Git pre-commit hooks framework
+coverage>=7.2.0               # Code coverage measurement (standalone)
+bandit>=1.7.5                 # Security linting tool
+safety>=2.3.0                 # Check for known security vulnerabilities
+
+# Documentation Generation (optional)
+sphinx>=7.1.0                 # Documentation generator
+sphinx-rtd-theme>=1.3.0       # Read the Docs theme for Sphinx
+
+# Performance Profiling (optional)
+line-profiler>=4.0.0          # Line-by-line profiling tool
+memory-profiler>=0.61.0       # Memory usage profiling
+
+# Additional Testing Utilities
+factory-boy>=3.3.0            # Test data generation
+freezegun>=1.2.0              # Time mocking for tests
+responses>=0.23.0             # Mock HTTP requests for testing
+
+# Development Environment
+ipython>=8.14.0               # Enhanced interactive Python shell
+jupyter>=1.0.0                # Jupyter notebook for development and analysis
