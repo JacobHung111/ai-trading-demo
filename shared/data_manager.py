@@ -95,7 +95,9 @@ class DataManager:
 
             # Fetch data from Yahoo Finance
             stock = yf.Ticker(ticker.upper().strip())
-            data = stock.history(start=start_date, end=end_date)
+            # Add one day to end_date to ensure inclusion of the last day's data
+            effective_end_date = end_date + datetime.timedelta(days=1)
+            data = stock.history(start=start_date, end=effective_end_date)
 
             if data.empty:
                 raise ValueError(f"No data found for ticker {ticker}")
