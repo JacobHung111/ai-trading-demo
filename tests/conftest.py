@@ -6,21 +6,22 @@ Fixtures are used to reduce code duplication and provide consistent test data
 across all test modules following the DRY principle.
 
 Author: AI Trading Demo Team
-Version: 1.0 (Hybrid Architecture)
+Version: 2.0 (AI-Powered Architecture)
 """
 
 import pytest
 import pandas as pd
 import datetime
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, List
 from unittest.mock import MagicMock, patch
 
-# Import our shared modules for testing
-from shared.config import TradingConfig, get_config, reset_config
-from shared.data_manager import DataManager
-from shared.strategy import TradingStrategy
-from shared.indicators import TechnicalIndicators
+# Import our modules for testing
+from core.config import AITradingConfig, get_config, reset_config
+from core.data_manager import DataManager
+from core.strategy import TradingStrategy
+from core.news_fetcher import NewsFetcher, NewsArticle
+from core.ai_analyzer import AIAnalyzer, AIAnalysisResult
 
 
 @pytest.fixture
@@ -90,8 +91,7 @@ def sample_with_indicators() -> pd.DataFrame:
     }
     df = pd.DataFrame(data)
 
-    # Add indicators using our TechnicalIndicators class
-    df = TechnicalIndicators.add_all_indicators(df)
+    # Note: In v2 AI-powered version, indicators are calculated by the strategy internally
 
     return df
 
@@ -210,13 +210,13 @@ def mock_yfinance_error():
 
 
 @pytest.fixture
-def trading_config() -> TradingConfig:
-    """Provide a clean TradingConfig instance for testing.
+def ai_trading_config() -> AITradingConfig:
+    """Provide a clean AITradingConfig instance for testing.
 
     Returns:
-        TradingConfig: A fresh configuration instance with default values.
+        AITradingConfig: A fresh AI configuration instance with default values.
     """
-    return TradingConfig()
+    return AITradingConfig()
 
 
 @pytest.fixture
@@ -230,13 +230,16 @@ def data_manager() -> DataManager:
 
 
 @pytest.fixture
-def trading_strategy() -> TradingStrategy:
-    """Provide a TradingStrategy instance for testing.
+def ai_trading_strategy() -> TradingStrategy:
+    """Provide an AI TradingStrategy instance for testing.
 
     Returns:
-        TradingStrategy: A strategy instance with default parameters.
+        TradingStrategy: An AI strategy instance with mocked dependencies.
     """
-    return TradingStrategy(short_window=20, long_window=50)
+    with patch("core.strategy.get_news_fetcher"), patch(
+        "core.strategy.get_ai_analyzer"
+    ):
+        return TradingStrategy()
 
 
 @pytest.fixture(autouse=True)
@@ -292,3 +295,294 @@ def mock_streamlit():
         },
     ):
         yield
+
+
+# ===== AI-POWERED FIXTURES (v2.0) =====
+
+
+@pytest.fixture
+def sample_news_articles() -> List[NewsArticle]:
+    """Provide sample news articles for AI analysis testing.
+
+    Returns:
+        List[NewsArticle]: A collection of realistic news articles with varying sentiment.
+    """
+    import datetime
+
+    return [
+        NewsArticle(
+            source="Reuters",
+            title="Apple Reports Record Quarterly Earnings, Beats All Expectations",
+            description="Apple Inc. posted record quarterly earnings of $3.68 per share, significantly beating analyst expectations of $3.45 per share.",
+            url="https://example.com/apple-record-earnings",
+            published_at=datetime.datetime(
+                2024, 1, 15, 10, 30, 0, tzinfo=datetime.timezone.utc
+            ),
+            content="Apple Inc. (AAPL) delivered exceptional quarterly results, with revenue growing 15% year-over-year...",
+        ),
+        NewsArticle(
+            source="Bloomberg",
+            title="Tech Stocks Face Headwinds Amid Regulatory Concerns",
+            description="Major technology companies are facing increased regulatory scrutiny, which could impact future growth prospects.",
+            url="https://example.com/tech-regulatory-concerns",
+            published_at=datetime.datetime(
+                2024, 1, 15, 9, 15, 0, tzinfo=datetime.timezone.utc
+            ),
+            content="Technology sector giants are navigating a complex regulatory landscape...",
+        ),
+        NewsArticle(
+            source="Financial Times",
+            title="Market Volatility Expected to Continue as Fed Policy Remains Uncertain",
+            description="Financial markets continue to show signs of volatility as investors await clearer signals from the Federal Reserve.",
+            url="https://example.com/market-volatility-fed",
+            published_at=datetime.datetime(
+                2024, 1, 15, 8, 45, 0, tzinfo=datetime.timezone.utc
+            ),
+            content="Equity markets have experienced significant swings as uncertainty around monetary policy persists...",
+        ),
+    ]
+
+
+@pytest.fixture
+def bullish_news_articles() -> List[NewsArticle]:
+    """Provide bullish/positive news articles for testing BUY signals.
+
+    Returns:
+        List[NewsArticle]: News articles with positive sentiment.
+    """
+    import datetime
+
+    return [
+        NewsArticle(
+            source="MarketWatch",
+            title="Company Announces Major Breakthrough in AI Technology",
+            description="Revolutionary AI advancement positions company as industry leader with significant growth potential.",
+            url="https://example.com/ai-breakthrough",
+            published_at=datetime.datetime.now(datetime.timezone.utc),
+            content="The breakthrough technology is expected to drive substantial revenue growth...",
+        ),
+        NewsArticle(
+            source="CNBC",
+            title="Strong Quarterly Results Drive Analyst Upgrades",
+            description="Multiple analysts raise price targets following exceptional quarterly performance.",
+            url="https://example.com/analyst-upgrades",
+            published_at=datetime.datetime.now(datetime.timezone.utc),
+            content="Consensus price target increased to $200 from $175 following strong results...",
+        ),
+    ]
+
+
+@pytest.fixture
+def bearish_news_articles() -> List[NewsArticle]:
+    """Provide bearish/negative news articles for testing SELL signals.
+
+    Returns:
+        List[NewsArticle]: News articles with negative sentiment.
+    """
+    import datetime
+
+    return [
+        NewsArticle(
+            source="Wall Street Journal",
+            title="Company Faces Major Lawsuit Over Data Privacy Violations",
+            description="Federal lawsuit could result in billions in fines and long-term reputational damage.",
+            url="https://example.com/privacy-lawsuit",
+            published_at=datetime.datetime.now(datetime.timezone.utc),
+            content="The lawsuit alleges systematic privacy violations affecting millions of users...",
+        ),
+        NewsArticle(
+            source="Reuters",
+            title="CEO Departure Raises Questions About Company Strategy",
+            description="Sudden CEO resignation creates uncertainty about future direction and leadership stability.",
+            url="https://example.com/ceo-departure",
+            published_at=datetime.datetime.now(datetime.timezone.utc),
+            content="The unexpected departure has prompted concerns among investors and analysts...",
+        ),
+    ]
+
+
+@pytest.fixture
+def neutral_news_articles() -> List[NewsArticle]:
+    """Provide neutral news articles for testing HOLD signals.
+
+    Returns:
+        List[NewsArticle]: News articles with neutral sentiment.
+    """
+    import datetime
+
+    return [
+        NewsArticle(
+            source="Business Wire",
+            title="Company Announces Routine Board Meeting Results",
+            description="Standard quarterly board meeting concluded with no major announcements or changes.",
+            url="https://example.com/board-meeting",
+            published_at=datetime.datetime.now(datetime.timezone.utc),
+            content="The quarterly board meeting addressed routine operational matters...",
+        )
+    ]
+
+
+@pytest.fixture
+def mock_ai_analysis_buy() -> AIAnalysisResult:
+    """Mock AI analysis result for BUY signal.
+
+    Returns:
+        AIAnalysisResult: A bullish AI analysis result.
+    """
+    import time
+
+    return AIAnalysisResult(
+        signal="BUY",
+        confidence=0.85,
+        rationale="Strong earnings report and positive market sentiment indicate bullish outlook. Multiple analyst upgrades support continued growth potential.",
+        model_used="gemini-pro",
+        analysis_timestamp=time.time(),
+        raw_response='{"signal": "BUY", "confidence": 0.85, "rationale": "Strong earnings report and positive market sentiment..."}',
+    )
+
+
+@pytest.fixture
+def mock_ai_analysis_sell() -> AIAnalysisResult:
+    """Mock AI analysis result for SELL signal.
+
+    Returns:
+        AIAnalysisResult: A bearish AI analysis result.
+    """
+    import time
+
+    return AIAnalysisResult(
+        signal="SELL",
+        confidence=0.78,
+        rationale="Regulatory concerns and legal challenges pose significant risks to future performance. Recommend reducing exposure.",
+        model_used="gemini-pro",
+        analysis_timestamp=time.time(),
+        raw_response='{"signal": "SELL", "confidence": 0.78, "rationale": "Regulatory concerns and legal challenges..."}',
+    )
+
+
+@pytest.fixture
+def mock_ai_analysis_hold() -> AIAnalysisResult:
+    """Mock AI analysis result for HOLD signal.
+
+    Returns:
+        AIAnalysisResult: A neutral AI analysis result.
+    """
+    import time
+
+    return AIAnalysisResult(
+        signal="HOLD",
+        confidence=0.65,
+        rationale="Mixed signals from recent news and market conditions. No clear directional bias suggests maintaining current position.",
+        model_used="gemini-pro",
+        analysis_timestamp=time.time(),
+        raw_response='{"signal": "HOLD", "confidence": 0.65, "rationale": "Mixed signals from recent news..."}',
+    )
+
+
+@pytest.fixture
+def mock_news_api_success_response() -> Dict[str, Any]:
+    """Mock successful NewsAPI response.
+
+    Returns:
+        Dict: A mock NewsAPI response with articles.
+    """
+    return {
+        "status": "ok",
+        "totalResults": 2,
+        "articles": [
+            {
+                "source": {"id": "reuters", "name": "Reuters"},
+                "author": "Jane Reporter",
+                "title": "Apple Stock Rises on Strong Earnings Report",
+                "description": "Apple Inc. shares climbed after the company reported quarterly results that beat expectations.",
+                "url": "https://example.com/apple-earnings-news",
+                "urlToImage": "https://example.com/image.jpg",
+                "publishedAt": "2024-01-15T10:30:00Z",
+                "content": "Apple Inc. reported strong quarterly earnings that exceeded analyst expectations, driving shares higher in after-hours trading...",
+            },
+            {
+                "source": {"id": "bloomberg", "name": "Bloomberg"},
+                "author": "John Financial",
+                "title": "Technology Sector Shows Resilience Amid Market Volatility",
+                "description": "Tech stocks demonstrate strength despite broader market uncertainty.",
+                "url": "https://example.com/tech-resilience",
+                "urlToImage": "https://example.com/tech-image.jpg",
+                "publishedAt": "2024-01-15T09:45:00Z",
+                "content": "The technology sector continues to outperform broader market indices despite ongoing economic headwinds...",
+            },
+        ],
+    }
+
+
+@pytest.fixture
+def mock_news_api_error_response() -> Dict[str, Any]:
+    """Mock error NewsAPI response.
+
+    Returns:
+        Dict: A mock NewsAPI error response.
+    """
+    return {
+        "status": "error",
+        "code": "apiKeyInvalid",
+        "message": "Your API key is invalid or incorrect. Check your key, or go to https://newsapi.org to create a free API key.",
+    }
+
+
+@pytest.fixture
+def mock_gemini_success_response() -> str:
+    """Mock successful Gemini API response.
+
+    Returns:
+        str: A mock JSON response from Gemini AI.
+    """
+    return """
+    {
+        "signal": "BUY",
+        "confidence": 0.82,
+        "rationale": "The analysis of recent news indicates predominantly positive sentiment. Strong earnings performance and analyst upgrades suggest favorable near-term prospects for the stock."
+    }
+    """
+
+
+@pytest.fixture
+def mock_gemini_malformed_response() -> str:
+    """Mock malformed Gemini API response for error testing.
+
+    Returns:
+        str: A malformed JSON response.
+    """
+    return """
+    {
+        "signal": "BUY",
+        "confidence": 0.82,
+        "rationale": "Incomplete JSON response...
+    """
+
+
+@pytest.fixture
+def mock_data_with_ai_signals() -> pd.DataFrame:
+    """Mock DataFrame with AI signal columns for testing.
+
+    Returns:
+        pd.DataFrame: Sample data with AI analysis columns.
+    """
+    return pd.DataFrame(
+        {
+            "Date": [datetime.date(2024, 1, i + 1) for i in range(5)],
+            "Open": [100.0 + i for i in range(5)],
+            "High": [105.0 + i for i in range(5)],
+            "Low": [95.0 + i for i in range(5)],
+            "Close": [102.0 + i for i in range(5)],
+            "Volume": [1000000 + i * 10000 for i in range(5)],
+            "Signal": [0, 1, 0, -1, 0],
+            "AI_Signal": ["HOLD", "BUY", "HOLD", "SELL", "HOLD"],
+            "AI_Confidence": [0.0, 0.85, 0.65, 0.78, 0.55],
+            "AI_Rationale": [
+                "No analysis performed",
+                "Strong positive sentiment from earnings",
+                "Mixed market signals",
+                "Regulatory concerns outweigh positives",
+                "Neutral outlook with limited catalysts",
+            ],
+        }
+    )

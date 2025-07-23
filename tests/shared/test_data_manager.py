@@ -14,7 +14,7 @@ import pandas as pd
 import datetime
 import time
 from unittest.mock import patch, MagicMock
-from shared.data_manager import (
+from core.data_manager import (
     DataManager,
     validate_date_inputs_ui,
     load_data_with_streamlit_cache,

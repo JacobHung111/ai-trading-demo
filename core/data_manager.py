@@ -12,10 +12,18 @@ Version: 1.0 (Hybrid Architecture)
 import datetime
 import pandas as pd
 import yfinance as yf
-from typing import Optional, Dict, Callable, Any, Tuple
+from typing import Optional, Dict, Tuple
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import time
+
+from utils.errors import (
+    setup_logger, handle_data_fetch_error
+)
+from ui.components import (
+    display_streamlit_message, MessageType
+)
+from utils.api import APIValidator
 
 
 class DataManager:
@@ -113,7 +121,9 @@ class DataManager:
             return data
 
         except Exception as e:
-            print(f"Error fetching stock data for {ticker}: {e}")
+            # Use centralized error handling
+            logger = setup_logger(__name__)
+            error_info = handle_data_fetch_error(e, f"fetch stock data for {ticker}", logger)
             return pd.DataFrame()
 
     async def fetch_stock_data_async(
@@ -182,7 +192,9 @@ class DataManager:
             }
 
         except Exception as e:
-            print(f"Error fetching latest price for {ticker}: {e}")
+            # Use centralized error handling  
+            logger = setup_logger(__name__)
+            handle_data_fetch_error(e, f"fetch latest price for {ticker}", logger)
             return None
 
     async def get_latest_price_async(self, ticker: str) -> Optional[Dict]:
@@ -305,29 +317,28 @@ def validate_date_inputs_ui(start_date: datetime.date, end_date: datetime.date) 
         bool: True if dates are valid, False otherwise.
     """
     try:
-        import streamlit as st
-
-        if end_date < start_date:
-            st.warning(
-                "End date cannot be before start date. Please adjust your selection."
+        # Use centralized validation
+        is_valid, error_msg = APIValidator.validate_date_range(start_date, end_date)
+        
+        if not is_valid:
+            # Display validation error using streamlit message
+            display_streamlit_message(
+                MessageType.WARNING,
+                "Date Validation Error",
+                error_msg,
+                "⚠️"
             )
-            return False
-
-        # Check if date range is reasonable (not too far in the future)
-        today = datetime.date.today()
-        if start_date > today:
-            st.warning("Start date cannot be in the future.")
             return False
 
         return True
 
     except Exception as e:
-        try:
-            import streamlit as st
-
-            st.error(f"Error validating date inputs: {str(e)}")
-        except ImportError:
-            print(f"Error validating date inputs: {str(e)}")
+        display_streamlit_message(
+            MessageType.ERROR,
+            "Validation Error",
+            f"Error validating date inputs: {str(e)}",
+            "❌"
+        )
         return False
 
 
@@ -356,18 +367,13 @@ def load_data_with_streamlit_cache(
         data = data_manager.fetch_stock_data(ticker, start_date, end_date)
 
         if data.empty:
-            st.error(
-                f"No data found for ticker '{ticker}' in the specified date range. "
-                f"Please verify the ticker symbol is correct and try a different date range."
+            display_streamlit_message(
+                MessageType.ERROR,
+                "No Data Found",
+                f"No data found for ticker '{ticker}' in the specified date range. Please verify the ticker symbol is correct and try a different date range.",
+                "📊"
             )
             return pd.DataFrame()
-
-        # Validate minimum data requirements for analysis
-        if len(data) < 50:  # Need at least 50 days for SMA50 calculation
-            st.warning(
-                f"Limited data available for '{ticker}' ({len(data)} days). "
-                f"At least 50 days recommended for reliable analysis."
-            )
 
         return data
 
@@ -375,15 +381,12 @@ def load_data_with_streamlit_cache(
         try:
             import streamlit as st
 
-            error_msg = (
-                f"Failed to fetch data for ticker '{ticker}': {str(e)}\n"
-                f"This may be due to:\n"
-                f"• Invalid ticker symbol\n"
-                f"• Network connectivity issues\n"
-                f"• Yahoo Finance API temporary unavailability\n"
-                f"• Date range outside available data"
+            display_streamlit_message(
+                MessageType.ERROR,
+                f"Data Fetch Error for '{ticker}'",
+                f"Error loading data: {str(e)}. Please verify the ticker symbol and check your network connectivity.",
+                "❌"
             )
-            st.error(error_msg)
         except ImportError:
             print(f"Error loading data: {e}")
         return pd.DataFrame()

@@ -7,7 +7,17 @@
       "mcp__playwright__browser_click",
       "mcp__puppeteer__puppeteer_navigate",
       "mcp__context7__resolve-library-id",
-      "mcp__context7__get-library-docs"
+      "mcp__context7__get-library-docs",
+      "Bash(mv:*)",
+      "Bash(rm:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(sed:*)",
+      "Bash(for file in tests/shared/*.py)",
+      "Bash(do)",
+      "Bash(echo:*)",
+      "Bash(done)",
+      "Bash(for file in tests/*.py)"
     ],
     "deny": []
   }
