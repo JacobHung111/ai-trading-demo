@@ -161,16 +161,7 @@ The application supports various configuration options through `core/config.py`:
 - **No Real Trading**: Never connects to real brokerages or executes actual trades
 - **News-Based Only**: Signals are based solely on news sentiment, not comprehensive market analysis
 
-## Contributing
 
-We welcome contributions! Please see our contribution guidelines:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Follow the code quality standards in `CLAUDE.md`
-4. Add comprehensive tests for new functionality
-5. Ensure all tests pass (`pytest`)
-6. Submit a pull request
 
 ## License
 
