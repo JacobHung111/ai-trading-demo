@@ -166,23 +166,3 @@ The application supports various configuration options through `core/config.py`:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- **Google Gemini AI** for advanced language model capabilities
-- **Streamlit** for the excellent web application framework
-- **Yahoo Finance** for reliable financial data
-- **NewsAPI.org** for comprehensive news coverage
-- **Plotly** for interactive data visualization
-
-## Support
-
-For questions, issues, or suggestions:
-
-1. Check the [Issues](../../issues) section
-2. Review the `CLAUDE.md` file for detailed architecture information
-3. Run the test suite to verify your environment setup
-
----
-
-**Built with love to demonstrate the power of AI in financial analysis**
