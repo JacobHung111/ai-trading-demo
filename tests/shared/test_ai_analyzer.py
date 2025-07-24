@@ -22,10 +22,10 @@ from core.ai_analyzer import (
     AIAnalysisResult,
     get_ai_analyzer,
     analyze_news_sentiment,
-    test_ai_connection,
     validate_analysis_result,
     create_mock_analysis_result,
 )
+from core.ai_analyzer import test_ai_connection as ai_test_connection
 from core.news_fetcher import NewsArticle
 from core.config import AITradingConfig
 
@@ -132,18 +132,17 @@ class TestAIAnalyzer:
             ),
         ]
 
-    @patch("core.ai_analyzer.genai.configure")
-    def test_ai_analyzer_initialization_success(self, mock_configure, mock_config):
+    @patch("core.ai_analyzer.genai.Client")
+    def test_ai_analyzer_initialization_success(self, mock_client, mock_config):
         # Arrange & Act
         analyzer = AIAnalyzer(config=mock_config)
 
         # Assert
         assert analyzer.config == mock_config
         assert analyzer.model_name == "gemini-pro"
-        mock_configure.assert_called_once_with(api_key="test_gemini_api_key")
 
-    @patch("core.ai_analyzer.genai.configure")
-    def test_ai_analyzer_initialization_no_api_key(self, mock_configure, mock_config):
+    @patch("core.ai_analyzer.genai.Client")
+    def test_ai_analyzer_initialization_no_api_key(self, mock_client, mock_config):
         # Arrange
         mock_config.google_api_key = None
 
@@ -152,11 +151,10 @@ class TestAIAnalyzer:
 
         # Assert
         assert analyzer.model_name == "gemini-pro"
-        mock_configure.assert_not_called()
 
-    @patch("core.ai_analyzer.genai.configure")
+    @patch("core.ai_analyzer.genai.Client")
     def test_construct_analysis_prompt(
-        self, mock_configure, mock_config, sample_news_articles
+        self, mock_client, mock_config, sample_news_articles
     ):
         # Arrange
         analyzer = AIAnalyzer(config=mock_config)
@@ -171,7 +169,7 @@ class TestAIAnalyzer:
         assert "Tech Stocks Rally" in prompt
         assert "BUY" in prompt and "SELL" in prompt and "HOLD" in prompt
         assert "JSON" in prompt
-        assert "signal" in prompt and "confidence" in prompt and "rationale" in prompt
+        assert "signal" in prompt and "confidence" in prompt and "reasoning" in prompt
 
     @patch("core.ai_analyzer.genai.Client")
     def test_analyze_news_sentiment_happy_path_buy_signal(
@@ -575,7 +573,7 @@ class TestGlobalFunctions:
         mock_get_analyzer.return_value = mock_analyzer_instance
 
         # Act
-        result = test_ai_connection()
+        result = ai_test_connection()
 
         # Assert
         mock_analyzer_instance.test_connection.assert_called_once()

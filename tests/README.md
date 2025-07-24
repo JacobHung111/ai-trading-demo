@@ -7,19 +7,17 @@ Complete testing framework for the AI-powered trading demonstration system.
 ### Unit Tests (`shared/`)
 Individual component testing with mocks and fixtures.
 
-- **`test_config.py`** - Configuration management and environment validation
-- **`test_data_manager.py`** - Stock data fetching and caching
-- **`test_news_fetcher.py`** - News API integration and article processing  
-- **`test_ai_analyzer.py`** - AI sentiment analysis and signal generation
-- **`test_strategy.py`** - Trading strategy logic and signal computation
+- **`test_ai_analyzer.py`** - AI sentiment analysis and signal generation (42 tests)
+- **`test_config_model_switching.py`** - AI model configuration and switching (25 tests)
+- **`test_data_manager.py`** - Stock data fetching and caching (33 tests)
+- **`test_news_fetcher.py`** - News API integration and article processing (26 tests)
+- **`test_strategy.py`** - Trading strategy logic and signal computation (24 tests)
 
 ### Integration Tests (Root Level)
 End-to-end system testing with real APIs.
 
-- **`integration_test.py`** - Core pipeline integration (News → AI → Strategy)
-- **`api_compatibility_test.py`** - API response format validation and updates
-- **`ui_integration_test.py`** - UI applications testing (Streamlit + NiceGUI)
-- **`system_integration_test.py`** - Complete system validation and performance
+- **`test_integration.py`** - Core pipeline integration with API connectivity
+- **`test_system.py`** - Complete system validation and performance testing
 
 ### Test Data (`fixtures/`)
 Reusable test data and mock responses.
@@ -28,33 +26,42 @@ Reusable test data and mock responses.
 
 ## 🧪 Running Tests
 
+### Quick Test Commands
+```bash
+# Run all tests
+pytest
+
+# Run with coverage report
+pytest --cov=core --cov=ui --cov=utils --cov-report=html
+
+# Run specific test categories
+pytest -m unit                    # Unit tests only
+pytest -m integration             # Integration tests only
+pytest -m "not slow"              # Skip slow tests
+```
+
 ### Unit Tests (Mock Data)
 ```bash
 # Run all unit tests
 pytest tests/shared/ -v
 
-# With coverage report
-pytest tests/shared/ --cov=shared --cov-report=term-missing
-
 # Specific component
 pytest tests/shared/test_ai_analyzer.py -v
+pytest tests/shared/test_strategy.py::TestAITradingStrategy -v
 ```
 
 ### Integration Tests (Real APIs)
-**⚠️ Requires API keys in .env file**
+**⚠️ Requires API keys in environment variables**
 
 ```bash
 # Core system integration
-python tests/integration_test.py
+pytest tests/test_integration.py -v
 
-# API compatibility validation  
-python tests/api_compatibility_test.py
+# Complete system validation  
+pytest tests/test_system.py -v
 
-# UI applications testing
-python tests/ui_integration_test.py
-
-# Complete system validation
-python tests/system_integration_test.py
+# Skip tests requiring API keys
+pytest -m "not ai_required and not news_required"
 ```
 
 ## 📊 Test Coverage

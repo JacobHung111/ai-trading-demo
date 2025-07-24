@@ -17,7 +17,9 @@
       "Bash(do)",
       "Bash(echo:*)",
       "Bash(done)",
-      "Bash(for file in tests/*.py)"
+      "Bash(for file in tests/*.py)",
+      "Bash(awk:*)",
+      "Bash(pytest:*)"
     ],
     "deny": []
   }

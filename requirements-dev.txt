@@ -6,6 +6,8 @@ pytest>=7.4.0                 # Primary testing framework with powerful features
 pytest-mock>=3.11.0           # Simple fixture-based interface for unittest.mock
 pytest-cov>=4.1.0             # Code coverage measurement tool
 pytest-asyncio>=0.21.0        # Support for testing asyncio code
+pytest-timeout>=2.1.0         # Test timeout management
+pytest-xdist>=3.3.0           # Parallel test execution
 
 # Code Formatting & Linting
 black>=23.7.0                 # Uncompromising code formatter
