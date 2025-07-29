@@ -114,8 +114,12 @@ class AITradingConfig:
 
     def __post_init__(self) -> None:
         """Initialize API keys from environment variables after dataclass creation."""
-        self.load_api_keys()
-        self.update_model_settings(self.ai_model_name)
+        try:
+            self.load_api_keys()
+            self.update_model_settings(self.ai_model_name)
+        except Exception as e:
+            logging.warning(f"Error during config initialization: {e}")
+            # Continue with default settings if initialization fails
 
     def load_api_keys(self) -> None:
         """Load API keys from environment variables or Streamlit secrets.
@@ -212,7 +216,6 @@ class AITradingConfig:
                 return None
 
             from google import genai
-            from google.api_core import exceptions as google_exceptions
             
             # Initialize client
             client = genai.Client(api_key=self.google_api_key)
@@ -256,8 +259,8 @@ class AITradingConfig:
                 logging.warning("No Gemini models found in API response")
                 return None
                 
-        except google_exceptions.GoogleAPICallError as e:
-            logging.error(f"Google API error fetching models: {e}")
+        except ImportError as e:
+            logging.warning(f"Google API libraries not available: {e}")
             return None
         except Exception as e:
             logging.error(f"Error fetching models from API: {e}")
@@ -309,12 +312,21 @@ class AITradingConfig:
         Returns:
             bool: True if model was updated successfully, False if model not found.
         """
-        # Get available models (includes dynamic fetch)
-        available_models = self.get_available_models()
-        
-        if model_name not in available_models:
-            logging.warning(f"Unknown AI model: {model_name}")
-            return False
+        try:
+            # Get available models (includes dynamic fetch)
+            available_models = self.get_available_models()
+            
+            if model_name not in available_models:
+                logging.warning(f"Unknown AI model: {model_name}")
+                return False
+        except Exception as e:
+            logging.warning(f"Error getting available models: {e}")
+            # Use hardcoded fallback models
+            available_models = self.available_ai_models
+            
+            if model_name not in available_models:
+                logging.warning(f"Unknown AI model: {model_name}")
+                return False
         
         model_config = available_models[model_name]
         

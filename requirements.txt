@@ -15,6 +15,7 @@ plotly>=5.15.0             # Interactive charts
 
 # AI & External Data Sources
 google-genai>=0.3.0          # Google Gemini API for sentiment analysis
+google-api-core>=2.15.0     # Required by google-genai
 newsapi-python>=0.2.6      # NewsAPI.org client for financial news
 
 # HTTP Requests (may be required by news fetcher)
