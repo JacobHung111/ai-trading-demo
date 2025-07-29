@@ -118,18 +118,31 @@ class AITradingConfig:
         self.update_model_settings(self.ai_model_name)
 
     def load_api_keys(self) -> None:
-        """Load API keys from environment variables.
+        """Load API keys from environment variables or Streamlit secrets.
 
-        Raises:
-            ValueError: If required API keys are not found in environment.
+        Tries to load from Streamlit secrets first, then falls back to environment variables.
+        This supports both local development and Streamlit Cloud deployment.
         """
+        # Try Streamlit secrets first (for Streamlit Cloud deployment)
+        try:
+            import streamlit as st
+            if hasattr(st, 'secrets'):
+                self.google_api_key = st.secrets.get("GOOGLE_API_KEY")
+                self.newsapi_api_key = st.secrets.get("NEWS_API_KEY")  # Note: NEWS_API_KEY in secrets
+                if self.google_api_key and self.newsapi_api_key:
+                    logging.info("API keys loaded from Streamlit secrets")
+                    return
+        except (ImportError, AttributeError, KeyError):
+            pass
+        
+        # Fallback to environment variables (for local development)
         self.google_api_key = os.getenv("GOOGLE_API_KEY")
-        self.newsapi_api_key = os.getenv("NEWSAPI_API_KEY")
+        self.newsapi_api_key = os.getenv("NEWSAPI_API_KEY") or os.getenv("NEWS_API_KEY")
 
         if not self.google_api_key:
-            logging.warning("GOOGLE_API_KEY not found in environment variables")
+            logging.warning("GOOGLE_API_KEY not found in environment variables or Streamlit secrets")
         if not self.newsapi_api_key:
-            logging.warning("NEWSAPI_API_KEY not found in environment variables")
+            logging.warning("NEWS_API_KEY not found in environment variables or Streamlit secrets")
 
     def validate_api_keys(self) -> Dict[str, bool]:
         """Validate that required API keys are available and not placeholder values.
