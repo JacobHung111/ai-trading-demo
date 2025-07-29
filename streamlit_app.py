@@ -1,14 +1,13 @@
 """
-AI Trading Demo - Unified Trading Analysis & Monitoring Platform
+AI Trading Demo - AI-Powered Trading Analysis Platform
 
-This is the unified AI Trading Demo application that combines comprehensive historical
-analysis with real-time monitoring capabilities. The application provides AI-powered
-news sentiment analysis, interactive charts, detailed trading signals, and live
-price monitoring in a single, integrated platform.
+This is the AI Trading Demo application that provides comprehensive historical
+analysis powered by artificial intelligence. The application provides AI-powered
+news sentiment analysis, interactive charts, and detailed trading signals
+in a unified platform.
 
 Features:
 - Historical AI-powered trading signal analysis
-- Real-time price monitoring and live updates
 - Interactive charts with AI signal visualization
 - Comprehensive trading statistics and performance metrics
 - News sentiment analysis using Google Gemini AI
@@ -47,26 +46,25 @@ def main() -> None:
     """
     # Page configuration
     st.set_page_config(
-        page_title="AI Trading Platform - Analysis & Monitoring",
+        page_title="AI Trading Platform - Analysis",
         page_icon="🤖",
         layout="wide",
         initial_sidebar_state="expanded",
     )
 
     # Application header
-    st.title("🤖 AI Trading Platform - Analysis & Monitoring")
+    st.title("🤖 AI Trading Platform - Analysis")
     st.markdown(
         """
-    **Unified AI-Powered Trading Analysis & Real-time Monitoring Platform**
+    **AI-Powered Trading Analysis Platform**
     
-    This integrated platform combines comprehensive historical analysis with real-time monitoring capabilities. 
-    Features include AI-powered news sentiment analysis, interactive visualizations, detailed trading signals, 
-    and live price monitoring - all in one unified interface.
+    This platform provides comprehensive historical analysis powered by artificial intelligence.
+    Features include AI-powered news sentiment analysis, interactive visualizations, and detailed trading signals
+    in a unified interface.
     
     ### 🚀 **Key Features**:
     - **📊 Historical Analysis**: Deep AI analysis of past trading signals and performance
     - **🤖 AI Trading Signals**: Google Gemini AI analyzes news sentiment for BUY/SELL/HOLD recommendations  
-    - **⚡ Real-time Monitoring**: Live price updates and signal tracking
     - **📈 Interactive Charts**: Advanced visualizations with AI signal overlays
     
     📅 **Date Range**: Due to NewsAPI limitations, analysis covers the **most recent 30 days**.
@@ -184,12 +182,11 @@ def display_results(data: pd.DataFrame, ticker: str) -> None:
     # Results header
     st.header(f"📊 Analysis Results for {ticker}")
 
-    # Create integrated tabs including real-time monitoring
-    tab1, tab2, tab3, tab4 = st.tabs(
+    # Create integrated tabs for analysis
+    tab1, tab2, tab3 = st.tabs(
         [
             "📈 Price Chart",
             "🤖 AI Trading Analysis",
-            "⚡ Real-time Monitor",
             "📊 Statistics",
         ]
     )
@@ -205,10 +202,6 @@ def display_results(data: pd.DataFrame, ticker: str) -> None:
         display_integrated_ai_analysis(data, ticker)
 
     with tab3:
-        # Real-time monitoring functionality from NiceGUI app
-        display_realtime_monitoring(data, ticker)
-
-    with tab4:
         st.subheader("Trading Statistics")
         display_statistics(data)
 
@@ -781,330 +774,10 @@ def display_statistics(data: pd.DataFrame) -> None:
         st.info("AI analysis data not available for the current dataset.")
 
 
-def display_realtime_monitoring(data: pd.DataFrame, ticker: str) -> None:
-    """Display real-time monitoring interface integrated from NiceGUI functionality.
-
-    This function provides real-time price updates, live signal monitoring,
-    and interactive dashboard features within the Streamlit interface.
-
-    Args:
-        data (pd.DataFrame): Historical data with AI signals.
-        ticker (str): Stock ticker symbol.
-    """
-    st.subheader(f"⚡ Real-time Monitor for {ticker}")
-
-    # Check if we have data to monitor
-    if data.empty:
-        st.warning(
-            "⚠️ No historical data available for real-time monitoring. Please load historical data first."
-        )
-        return
-
-    # Initialize session state for real-time monitoring
-    if "monitoring_active" not in st.session_state:
-        st.session_state.monitoring_active = False
-    if "last_update_time" not in st.session_state:
-        st.session_state.last_update_time = None
-    if "current_price_data" not in st.session_state:
-        st.session_state.current_price_data = None
-    if "realtime_data_manager" not in st.session_state:
-        config = get_config()
-        st.session_state.realtime_data_manager = DataManager(
-            cache_duration=config.realtime_cache_duration
-        )
-
-    # Control panel
-    with st.container():
-        st.markdown("### 🎛️ Control Panel")
-
-        col1, col2, col3 = st.columns([1, 1, 2])
-
-        with col1:
-            # Start/Stop monitoring button
-            if st.button(
-                (
-                    "🔴 Stop Monitor"
-                    if st.session_state.monitoring_active
-                    else "🟢 Start Monitor"
-                ),
-                type="secondary" if st.session_state.monitoring_active else "primary",
-            ):
-                st.session_state.monitoring_active = (
-                    not st.session_state.monitoring_active
-                )
-                if st.session_state.monitoring_active:
-                    st.success(f"✅ Started monitoring {ticker}")
-                    st.rerun()
-                else:
-                    st.info("⏸️ Stopped monitoring")
-                    st.rerun()
-
-        with col2:
-            # Auto-refresh toggle
-            auto_refresh = st.checkbox(
-                "Auto-refresh (30s)", value=st.session_state.monitoring_active
-            )
-            if auto_refresh and st.session_state.monitoring_active:
-                time.sleep(1)  # Small delay to prevent too frequent updates
-                st.rerun()
-
-        with col3:
-            # Last update time display
-            if st.session_state.last_update_time:
-                st.write(f"**Last Update:** {st.session_state.last_update_time}")
-            else:
-                st.write("**Status:** Not monitoring")
-
-    # Real-time metrics row
-    if st.session_state.monitoring_active:
-        try:
-            # Fetch latest price data
-            latest_price_info = st.session_state.realtime_data_manager.get_latest_price(
-                ticker
-            )
-
-            if latest_price_info:
-                st.session_state.current_price_data = latest_price_info
-                st.session_state.last_update_time = latest_price_info[
-                    "timestamp"
-                ].strftime("%H:%M:%S")
-
-                # Display current metrics
-                with st.container():
-                    st.markdown("### 📊 Current Metrics")
-                    col1, col2, col3, col4 = st.columns(4)
-
-                    with col1:
-                        st.metric(
-                            "Current Price",
-                            f"${latest_price_info['price']:.2f}",
-                            delta=f"{latest_price_info['change']:+.2f} ({latest_price_info['change_percent']:+.2f}%)",
-                        )
-
-                    with col2:
-                        # Get latest AI signal from historical data
-                        latest_signal_data = data.iloc[-1] if not data.empty else None
-                        if (
-                            latest_signal_data is not None
-                            and "AI_Signal" in data.columns
-                        ):
-                            signal_value = latest_signal_data.get("AI_Signal", "HOLD")
-                            signal_emoji = (
-                                "🟢"
-                                if signal_value == "BUY"
-                                else "🔴" if signal_value == "SELL" else "🟡"
-                            )
-                            st.metric(
-                                "Latest AI Signal", f"{signal_emoji} {signal_value}"
-                            )
-                        else:
-                            st.metric("Latest AI Signal", "🟡 HOLD")
-
-                    with col3:
-                        if (
-                            latest_signal_data is not None
-                            and "AI_Confidence" in data.columns
-                        ):
-                            confidence = latest_signal_data.get("AI_Confidence", 0.0)
-                            st.metric("AI Confidence", f"{confidence:.1%}")
-                        else:
-                            st.metric("AI Confidence", "N/A")
-
-                    with col4:
-                        # Volume information
-                        volume = latest_price_info.get("volume", 0)
-                        if volume > 0:
-                            volume_str = f"{volume:,.0f}"
-                        else:
-                            volume_str = "N/A"
-                        st.metric("Volume", volume_str)
-
-                # Live chart with recent data
-                display_realtime_chart(data, latest_price_info, ticker)
-
-                # Recent signals table (last 5)
-                display_recent_signals_compact(data, ticker)
-
-            else:
-                st.error(
-                    f"❌ Failed to fetch real-time data for {ticker}. Please check the ticker symbol."
-                )
-
-        except Exception as e:
-            error_message = str(e)
-            if (
-                "RESOURCE_EXHAUSTED" in error_message
-                or "quota" in error_message.lower()
-            ):
-                st.error("🚨 **API Quota Exhausted** - Real-time monitoring limited")
-                st.info(
-                    "💡 Price data can still be updated, but AI analysis features are temporarily unavailable. Will reset at UTC midnight tomorrow."
-                )
-            else:
-                st.error(f"❌ Error in real-time monitoring: {error_message}")
-
-    else:
-        # Show static overview when not monitoring
-        st.info(
-            "🔍 Click 'Start Monitor' to begin real-time price tracking and live AI signal updates."
-        )
-
-        # Show latest data from historical analysis
-        if not data.empty:
-            with st.container():
-                st.markdown("### 📈 Latest Historical Data")
-                latest_row = data.iloc[-1]
-
-                col1, col2, col3 = st.columns(3)
-                with col1:
-                    st.metric("Last Close Price", f"${latest_row['Close']:.2f}")
-                with col2:
-                    if "AI_Signal" in data.columns:
-                        signal = latest_row.get("AI_Signal", "HOLD")
-                        signal_emoji = (
-                            "🟢"
-                            if signal == "BUY"
-                            else "🔴" if signal == "SELL" else "🟡"
-                        )
-                        st.metric("Last AI Signal", f"{signal_emoji} {signal}")
-                with col3:
-                    if "AI_Confidence" in data.columns:
-                        confidence = latest_row.get("AI_Confidence", 0.0)
-                        st.metric("Signal Confidence", f"{confidence:.1%}")
 
 
-def display_realtime_chart(data: pd.DataFrame, price_info: Dict, ticker: str) -> None:
-    """Display real-time price chart with latest price point.
-
-    Args:
-        data (pd.DataFrame): Historical data with AI signals.
-        price_info (Dict): Latest price information.
-        ticker (str): Stock ticker symbol.
-    """
-    try:
-        # Create chart with recent data (last 30 days)
-        recent_data = data.tail(30).copy() if len(data) > 30 else data.copy()
-
-        fig = go.Figure()
-
-        # Add historical price line
-        fig.add_trace(
-            go.Scatter(
-                x=recent_data["Date"],
-                y=recent_data["Close"],
-                mode="lines",
-                name="Historical Price",
-                line=dict(color="#1f77b4", width=2),
-            )
-        )
-
-        # Add current price point (use last date + 1 day as estimate)
-        if not recent_data.empty:
-            last_date = recent_data["Date"].iloc[-1]
-            current_date = last_date + pd.Timedelta(days=1)
-
-            fig.add_trace(
-                go.Scatter(
-                    x=[current_date],
-                    y=[price_info["price"]],
-                    mode="markers",
-                    name="Current Price",
-                    marker=dict(size=12, color="red", symbol="circle"),
-                )
-            )
-
-        # Add buy signals
-        buy_signals = recent_data[recent_data.get("Signal", 0) == 1]
-        if not buy_signals.empty:
-            fig.add_trace(
-                go.Scatter(
-                    x=buy_signals["Date"],
-                    y=buy_signals["Close"],
-                    mode="markers",
-                    name="Buy Signal",
-                    marker=dict(symbol="triangle-up", size=10, color="green"),
-                )
-            )
-
-        # Add sell signals
-        sell_signals = recent_data[recent_data.get("Signal", 0) == -1]
-        if not sell_signals.empty:
-            fig.add_trace(
-                go.Scatter(
-                    x=sell_signals["Date"],
-                    y=sell_signals["Close"],
-                    mode="markers",
-                    name="Sell Signal",
-                    marker=dict(symbol="triangle-down", size=10, color="red"),
-                )
-            )
-
-        # Update layout
-        fig.update_layout(
-            title=f"{ticker} - Real-time Price with AI Signals",
-            xaxis_title="Date",
-            yaxis_title="Price ($)",
-            height=400,
-            showlegend=True,
-            template="plotly_white",
-        )
-
-        st.plotly_chart(fig, use_container_width=True)
-
-    except Exception as e:
-        st.error(f"Error creating real-time chart: {str(e)}")
 
 
-def display_recent_signals_compact(data: pd.DataFrame, ticker: str) -> None:
-    """Display recent AI signals in a compact table.
-
-    Args:
-        data (pd.DataFrame): Data with AI signals.
-        ticker (str): Stock ticker symbol.
-    """
-    try:
-        if data.empty or "Signal" not in data.columns:
-            return
-
-        # Get signals (non-zero only)
-        signals_data = data[data["Signal"] != 0].tail(5)  # Last 5 signals
-
-        if signals_data.empty:
-            st.info("🔍 No recent trading signals found in historical data.")
-            return
-
-        st.markdown("### 📋 Recent AI Signals")
-
-        # Create table data
-        table_data = []
-        for _, row in signals_data.iterrows():
-            signal_emoji = "🟢" if row["Signal"] == 1 else "🔴"
-            signal_text = row.get("AI_Signal", "BUY" if row["Signal"] == 1 else "SELL")
-
-            table_data.append(
-                {
-                    "Date": (
-                        row["Date"].strftime("%Y-%m-%d")
-                        if hasattr(row["Date"], "strftime")
-                        else str(row["Date"])
-                    ),
-                    "Signal": f"{signal_emoji} {signal_text}",
-                    "Price": f"${row['Close']:.2f}",
-                    "Confidence": f"{row.get('AI_Confidence', 0.0):.1%}",
-                    "Rationale": (
-                        str(row.get("AI_Rationale", "N/A"))[:50] + "..."
-                        if len(str(row.get("AI_Rationale", "N/A"))) > 50
-                        else str(row.get("AI_Rationale", "N/A"))
-                    ),
-                }
-            )
-
-        # Display as dataframe
-        df_display = pd.DataFrame(table_data)
-        st.dataframe(df_display, use_container_width=True, hide_index=True)
-
-    except Exception as e:
-        st.error(f"Error displaying recent signals: {str(e)}")
 
 
 def display_api_status_check() -> None:
@@ -1242,7 +915,7 @@ def display_ai_model_selection() -> None:
                 # Show source of model information
                 model_source = model_info.get("source", "hardcoded")
                 if model_source == "api":
-                    st.success("🔄 **Source**: Live from Google API")
+                    st.success("🔄 **Source**: Fetched from Google API")
                 else:
                     st.info("📋 **Source**: Hardcoded fallback")
 
@@ -1294,7 +967,7 @@ def display_ai_model_selection() -> None:
                                             "ℹ️ New model will be used for the next analysis"
                                         )
 
-                                        # Clear any cached data to force refresh
+                                        # Clear any cached data for new model
                                         if "data_loaded" in st.session_state:
                                             del st.session_state["data_loaded"]
 

@@ -11,11 +11,10 @@ A sophisticated AI-powered trading analysis platform that combines news sentimen
 
 This application demonstrates advanced AI integration in financial analysis by using **Google Gemini AI** to analyze news sentiment and generate trading signals. The platform provides:
 
-- **AI-Powered News Analysis** - Real-time sentiment analysis of financial news
+- **AI-Powered News Analysis** - Sentiment analysis of financial news using AI
 - **Interactive Data Visualization** - Comprehensive charts and trading signal visualization  
 - **Intelligent Signal Generation** - BUY/SELL/HOLD recommendations based on AI analysis
 - **Historical Performance Tracking** - Track AI decision accuracy over time
-- **Real-Time Monitoring** - Live price updates and continuous analysis
 
 ## Key Features
 
@@ -26,7 +25,7 @@ This application demonstrates advanced AI integration in financial analysis by u
 - Intelligent caching to optimize API usage
 
 ### Data & Analytics
-- **Yahoo Finance** integration for real-time stock data
+- **Yahoo Finance** integration for historical stock data
 - **NewsAPI.org** for comprehensive financial news coverage
 - Interactive **Plotly** charts with AI signal overlays
 - Historical performance metrics and trend analysis
@@ -97,7 +96,7 @@ streamlit run streamlit_app.py
 ## How It Works
 
 ### 1. Data Collection
-- Fetches real-time stock price data from Yahoo Finance
+- Fetches historical stock price data from Yahoo Finance
 - Retrieves relevant financial news from NewsAPI.org
 - Caches data efficiently to minimize API calls
 

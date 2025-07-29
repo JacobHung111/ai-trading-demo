@@ -1,12 +1,12 @@
 """
 Trading Strategy Module for AI Trading Demo
 
-This module implements AI-powered trading strategy logic shared between 
-Streamlit and NiceGUI applications. The strategy generates buy/sell signals 
+This module implements AI-powered trading strategy logic for the 
+AI Trading Demo application. The strategy generates buy/sell signals 
 based on AI sentiment analysis of news headlines using Google Gemini API.
 
 Author: AI Trading Demo Team
-Version: 2.0 (AI-Powered Hybrid Architecture)
+Version: 3.0 (AI-Powered Streamlit Architecture)
 """
 
 import datetime
@@ -223,8 +223,8 @@ class TradingStrategy:
     def get_latest_signal(self, data: pd.DataFrame) -> Optional[Dict]:
         """Get the most recent AI trading signal and its details.
 
-        This function is useful for real-time applications that need to
-        know the current AI signal status.
+        This function retrieves the most recent AI trading signal
+        and its details for display purposes.
 
         Args:
             data (pd.DataFrame): Data with AI signals generated.
@@ -376,10 +376,10 @@ class TradingStrategy:
             return []
 
     def analyze_single_ticker(self, ticker: str) -> Optional[Dict[str, Any]]:
-        """Perform real-time AI analysis for a single ticker.
+        """Perform AI analysis for a single ticker.
 
-        This function is optimized for real-time signal detection and
-        can be called independently for live analysis.
+        This function analyzes a single ticker and
+        can be called independently for analysis.
 
         Args:
             ticker (str): Stock ticker symbol to analyze.
@@ -391,7 +391,7 @@ class TradingStrategy:
                 Returns None if analysis fails.
         """
         try:
-            self.logger.info(f"Performing real-time analysis for {ticker}")
+            self.logger.info(f"Performing analysis for {ticker}")
 
             # Fetch recent news
             articles = self.news_fetcher.get_stock_news(
@@ -429,7 +429,7 @@ class TradingStrategy:
             }
 
         except Exception as e:
-            self.logger.error(f"Error in real-time analysis for {ticker}: {e}")
+            self.logger.error(f"Error in analysis for {ticker}: {e}")
             return None
 
     def get_strategy_parameters(self) -> Dict:

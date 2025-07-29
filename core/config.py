@@ -84,7 +84,6 @@ class AITradingConfig:
 
     # Data Management
     default_cache_duration: int = 300  # 5 minutes for Streamlit
-    realtime_cache_duration: int = 60  # 1 minute for real-time updates
     news_cache_duration: int = 1800  # 30 minutes for news data
     ai_cache_duration: int = 3600  # 1 hour for AI analysis results
     
@@ -102,8 +101,7 @@ class AITradingConfig:
     min_data_points: int = 30  # Minimum data points for analysis
     max_date_range_years: int = 20
 
-    # Real-time Update Settings
-    realtime_update_interval: int = 30  # seconds
+    # Application Settings
     max_concurrent_updates: int = 5
 
     # Chart Configuration
@@ -403,7 +401,7 @@ class AITradingConfig:
         """Get appropriate cache duration for data type.
 
         Args:
-            data_type (str): Data type ("price", "news", "ai", or app type "streamlit"/"realtime").
+            data_type (str): Data type ("price", "news", "ai", or app type "streamlit").
 
         Returns:
             int: Cache duration in seconds.
@@ -413,7 +411,6 @@ class AITradingConfig:
             "news": self.news_cache_duration,
             "ai": self.ai_cache_duration,
             "streamlit": self.default_cache_duration,
-            "realtime": self.realtime_cache_duration,
         }
         return cache_mapping.get(data_type.lower(), self.default_cache_duration)
 
@@ -486,7 +483,6 @@ class AITradingConfig:
             "connection_timeout_seconds": self.connection_timeout_seconds,
             # Data Management
             "default_cache_duration": self.default_cache_duration,
-            "realtime_cache_duration": self.realtime_cache_duration,
             "news_cache_duration": self.news_cache_duration,
             "ai_cache_duration": self.ai_cache_duration,
             # Application Settings
@@ -495,7 +491,6 @@ class AITradingConfig:
             "streamlit_port": self.streamlit_port,
             "min_data_points": self.min_data_points,
             "max_date_range_years": self.max_date_range_years,
-            "realtime_update_interval": self.realtime_update_interval,
             "max_concurrent_updates": self.max_concurrent_updates,
             "chart_height": self.chart_height,
             "chart_theme": self.chart_theme,

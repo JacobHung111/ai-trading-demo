@@ -1,9 +1,8 @@
-# AI Trading Demo Dependencies - Hybrid Architecture
+# AI Trading Demo Dependencies - Streamlit Architecture
 # Based on claude.md Chapter 4: Tech Stack & Environment
 
-# UI Frameworks
-streamlit>=1.28.0          # Historical analysis and visualization
-nicegui>=1.4.0             # Real-time monitoring and interactive dashboards
+# UI Framework
+streamlit>=1.28.0          # Analysis and visualization
 
 # Data Processing
 pandas>=2.0.0
@@ -12,15 +11,11 @@ pandas>=2.0.0
 yfinance>=0.2.18
 
 # Data Visualization
-plotly>=5.15.0             # Interactive charts for both frameworks
+plotly>=5.15.0             # Interactive charts
 
 # AI & External Data Sources
 google-genai>=0.3.0          # Google Gemini API for sentiment analysis
 newsapi-python>=0.2.6      # NewsAPI.org client for financial news
-
-# Real-time Communication & Backend
-# FastAPI and WebSocket support included with NiceGUI
-# uvicorn>=0.23.0          # ASGI server (included with NiceGUI)
 
 # HTTP Requests (may be required by news fetcher)
 requests>=2.31.0           # HTTP library for API requests

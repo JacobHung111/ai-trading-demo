@@ -484,8 +484,8 @@ class TestAITradingStrategy:
         assert sell_signal["rationale"] == "Negative outlook"
 
     def test_analyze_single_ticker(self, mock_config, sample_news_articles):
-        """Test real-time single ticker analysis."""
-        # Arrange: Mock components for real-time analysis
+        """Test single ticker analysis."""
+        # Arrange: Mock components for analysis
         with patch("core.strategy.get_news_fetcher") as mock_get_news, patch(
             "core.strategy.get_ai_analyzer"
         ) as mock_get_ai:
@@ -511,7 +511,7 @@ class TestAITradingStrategy:
         # Act: Analyze single ticker
         result = strategy.analyze_single_ticker("AAPL")
 
-        # Assert: Should return real-time analysis
+        # Assert: Should return analysis
         assert result is not None
         assert result["signal"] == 1
         assert result["ai_signal"] == "BUY"

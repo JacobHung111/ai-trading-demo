@@ -68,7 +68,7 @@ pytest -m "not ai_required and not news_required"
 
 - **Unit Tests**: 90%+ coverage for `shared/` modules
 - **Integration Tests**: 100% pipeline coverage with real APIs
-- **UI Tests**: Both Streamlit and NiceGUI startup validation
+- **UI Tests**: Streamlit application startup validation
 - **Performance Tests**: Response time and caching validation
 
 ## 🔧 Test Configuration

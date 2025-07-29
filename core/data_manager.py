@@ -1,20 +1,18 @@
 """
 Data Manager Module for AI Trading Demo
 
-This module provides centralized data management functionality shared between
-Streamlit and NiceGUI applications. It handles data fetching, caching,
-validation, and real-time data streaming coordination.
+This module provides centralized data management functionality for the
+AI Trading Demo application. It handles data fetching, caching,
+and validation.
 
 Author: AI Trading Demo Team
-Version: 1.0 (Hybrid Architecture)
+Version: 2.0 (Streamlit Architecture)
 """
 
 import datetime
 import pandas as pd
 import yfinance as yf
 from typing import Optional, Dict, Tuple
-import asyncio
-from concurrent.futures import ThreadPoolExecutor
 import time
 
 from utils.errors import (
@@ -27,7 +25,7 @@ from utils.api import APIValidator
 
 
 class DataManager:
-    """Centralized data management with caching and real-time capabilities."""
+    """Centralized data management with caching capabilities."""
 
     def __init__(self, cache_duration: int = 300):
         """Initialize the DataManager with caching configuration.
@@ -37,7 +35,6 @@ class DataManager:
         """
         self.cache_duration = cache_duration
         self._cache: Dict[str, Dict] = {}
-        self._executor = ThreadPoolExecutor(max_workers=2)
 
     def _is_cache_valid(self, cache_key: str) -> bool:
         """Check if cached data is still valid based on timestamp.
@@ -126,88 +123,8 @@ class DataManager:
             error_info = handle_data_fetch_error(e, f"fetch stock data for {ticker}", logger)
             return pd.DataFrame()
 
-    async def fetch_stock_data_async(
-        self, ticker: str, start_date: datetime.date, end_date: datetime.date
-    ) -> pd.DataFrame:
-        """Asynchronously fetch stock data for real-time applications.
 
-        This method is useful for NiceGUI applications that need non-blocking
-        data fetching to maintain UI responsiveness.
 
-        Args:
-            ticker (str): Stock ticker symbol.
-            start_date (datetime.date): Start date for historical data.
-            end_date (datetime.date): End date for historical data.
-
-        Returns:
-            pd.DataFrame: OHLCV stock data.
-        """
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(
-            self._executor, self.fetch_stock_data, ticker, start_date, end_date
-        )
-
-    def get_latest_price(self, ticker: str) -> Optional[Dict]:
-        """Get the latest price and basic info for a ticker.
-
-        This function fetches minimal real-time data useful for monitoring
-        applications without the overhead of historical data.
-
-        Args:
-            ticker (str): Stock ticker symbol.
-
-        Returns:
-            Optional[Dict]: Dictionary containing latest price info:
-                           {'price', 'change', 'change_percent', 'volume', 'timestamp'}
-                           Returns None if fetch fails.
-        """
-        try:
-            if not ticker or not ticker.strip():
-                return None
-
-            stock = yf.Ticker(ticker.upper().strip())
-            info = stock.fast_info
-
-            if not info:
-                return None
-
-            # Get current price and change
-            current_price = getattr(info, "last_price", None)
-            previous_close = getattr(info, "previous_close", None)
-
-            if current_price is None or previous_close is None:
-                return None
-
-            change = current_price - previous_close
-            change_percent = (
-                (change / previous_close * 100) if previous_close != 0 else 0
-            )
-
-            return {
-                "price": round(current_price, 2),
-                "change": round(change, 2),
-                "change_percent": round(change_percent, 2),
-                "volume": getattr(info, "last_volume", 0),
-                "timestamp": datetime.datetime.now(),
-            }
-
-        except Exception as e:
-            # Use centralized error handling  
-            logger = setup_logger(__name__)
-            handle_data_fetch_error(e, f"fetch latest price for {ticker}", logger)
-            return None
-
-    async def get_latest_price_async(self, ticker: str) -> Optional[Dict]:
-        """Asynchronously get latest price for real-time monitoring.
-
-        Args:
-            ticker (str): Stock ticker symbol.
-
-        Returns:
-            Optional[Dict]: Latest price information.
-        """
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(self._executor, self.get_latest_price, ticker)
 
     def validate_ticker(self, ticker: str) -> bool:
         """Validate if a ticker symbol exists and has data available.
